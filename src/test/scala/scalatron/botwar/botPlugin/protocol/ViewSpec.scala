@@ -1,4 +1,4 @@
-package scalatron.botwar.botPlugin
+package scalatron.botwar.botPlugin.protocol
 
 import org.specs2.Specification
 

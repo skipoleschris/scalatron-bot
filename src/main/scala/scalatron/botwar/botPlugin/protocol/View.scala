@@ -1,4 +1,4 @@
-package scalatron.botwar.botPlugin
+package scalatron.botwar.botPlugin.protocol
 
 case class View(entities: IndexedSeq[ViewEntity]) {
   def maxRange: Int = (width - 1) / 2
@@ -36,6 +36,6 @@ object ViewEntity {
     case 'p' => Toxifere
     case 'B' => Fluppet
     case 'b' => Snorg
-    case _ => throw new IllegalArgumentException("Unknown cell content: " + ch)
+    case _ => OccludedByWall // Treat as unknown
   }
 }
