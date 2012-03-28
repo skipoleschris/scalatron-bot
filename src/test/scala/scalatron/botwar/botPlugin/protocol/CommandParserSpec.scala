@@ -12,6 +12,7 @@ class CommandParserSpec extends Specification with CommandParser { def is =
     "parse the React command for a mini-bot"                         ! reactMiniBot^
     "parse the Goodbye command"                                      ! goodbye^
     "deal with invalid commands"                                     ! invalidCommand^
+    "deal with missing parameters"                                   ! missingParams^
                                                                      end
 
   def welcome = {
@@ -34,6 +35,11 @@ class CommandParserSpec extends Specification with CommandParser { def is =
 
   def invalidCommand = {
     parse("Invalid(text=foo)") must_== None
+  }
+
+  def missingParams = {
+    val reactTo = parse("React(entity=Master,view=____M____,energy=1000)")
+    reactTo must_== None
   }
 
   def simpleView = View(Vector(EmptyCell, EmptyCell, EmptyCell, EmptyCell, MyBot, EmptyCell, EmptyCell, EmptyCell, EmptyCell))

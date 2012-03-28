@@ -6,7 +6,7 @@ case class View(entities: IndexedSeq[ViewEntity]) {
   def height: Int = scala.math.sqrt(entities.length).toInt
 }
 
-object View {
+private[protocol] object View {
   def apply(view: String): View = new View(view.map(ViewEntity.apply))
 }
 
@@ -23,7 +23,7 @@ case object Toxifere extends ViewEntity  // bad plant, poisonous
 case object Fluppet extends ViewEntity   // good beast, food
 case object Snorg extends ViewEntity     // bad beast, predator
 
-object ViewEntity {
+private[protocol] object ViewEntity {
   def apply(ch: Char) = ch match {
     case '?' => OccludedByWall
     case '_' => EmptyCell

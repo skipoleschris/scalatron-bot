@@ -2,11 +2,14 @@ package scalatron.botwar.botPlugin.protocol
 
 trait CommandParser {
 
-  def parse(command: String): Option[Command] = {
-    val openBracket = command.indexOf("(")
-    val params = (command.substring(openBracket + 1, command.length - 1) split (',') map
-                   (_.split('=')) map (e => (e(0) -> e(1)))).toMap
-    command.substring(0, openBracket) match {
+  def parse(command: String): Option[Command] = noneOnException(command, extractParams, extractCommand)
+
+  private def extractParams(command: String) =
+    (command.substring(command.indexOf("(") + 1, command.length - 1) split (',') map
+                 (_.split('=')) map (e => (e(0) -> e(1)))).toMap
+
+  private def extractCommand(command: String, params: Map[String, String]) = {
+    command.substring(0, command.indexOf("(")) match {
       case "Welcome" => Some(Welcome(params("name"), params("path"), params("round").toInt))
       case "Goodbye" => Some(Goodbye(params("energy").toInt))
       case "React" if ( params("entity") == "Master" ) => Some(ReactBot(params("entity"), params("time").toInt,
@@ -16,6 +19,11 @@ trait CommandParser {
       case _ => None
     }
   }
+
+  private def noneOnException(command: String,
+                              fParams: String => Map[String, String],
+                              fCommand: (String, Map[String, String]) => Option[Command]): Option[Command] =
+    try { fCommand(command, fParams(command)) } catch { case _ => None }
 }
 
 sealed trait Command
