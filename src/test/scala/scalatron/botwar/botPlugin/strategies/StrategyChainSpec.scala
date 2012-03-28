@@ -26,7 +26,7 @@ class StrategyChainSpec extends Specification { def is =
     val chain = new TestStrategyChain()
     chain.installStrategies(strategy1 :: strategy3 :: Nil)
 
-    chain.forCommand(Welcome("test", "test", 1)) must_== Some(strategy1)
+    chain.forCommand(Welcome("test", "test", 5000, 1)) must_== Some(strategy1)
   }
 
   def noSuitableStrategy = {
@@ -37,7 +37,7 @@ class StrategyChainSpec extends Specification { def is =
   }
 
   val strategy1: PartialFunction[Command, IndexedSeq[Action]] = {
-    case Welcome(_, _, _) => Vector[Action]()
+    case Welcome(_, _, _, _) => Vector[Action]()
   }
 
   val strategy2: PartialFunction[Command, IndexedSeq[Action]] = {

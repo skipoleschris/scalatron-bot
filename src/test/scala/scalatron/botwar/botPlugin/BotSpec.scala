@@ -26,7 +26,7 @@ class BotSpec extends Specification { def is =
   }
 
   def strategy1: PartialFunction[Command, IndexedSeq[Action]] = {
-    case Welcome(_, _, _) => Vector[Action]()
+    case Welcome(_, _, _, _) => Vector[Action]()
   }
 
   def strategy2: PartialFunction[Command, IndexedSeq[Action]] = {

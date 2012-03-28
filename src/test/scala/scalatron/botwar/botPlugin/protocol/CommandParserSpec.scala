@@ -16,7 +16,7 @@ class CommandParserSpec extends Specification with CommandParser { def is =
                                                                      end
 
   def welcome = {
-    parse("Welcome(name=Test,path=/test,round=1)").get must_== Welcome("Test", "/test", 1)
+    parse("Welcome(name=Test,path=/test,apocalypse=5000,round=1)").get must_== Welcome("Test", "/test", 5000, 1)
   }
 
   def reactBot = {

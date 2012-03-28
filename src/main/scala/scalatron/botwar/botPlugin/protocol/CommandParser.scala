@@ -10,7 +10,7 @@ trait CommandParser {
 
   private def extractCommand(command: String, params: Map[String, String]) = {
     command.substring(0, command.indexOf("(")) match {
-      case "Welcome" => Some(Welcome(params("name"), params("path"), params("round").toInt))
+      case "Welcome" => Some(Welcome(params("name"), params("path"), params("apocalypse").toInt, params("round").toInt))
       case "Goodbye" => Some(Goodbye(params("energy").toInt))
       case "React" if ( params("entity") == "Master" ) => Some(ReactBot(params("entity"), params("time").toInt,
                                                                         params("energy").toInt, View(params("view"))))
@@ -27,7 +27,7 @@ trait CommandParser {
 }
 
 sealed trait Command
-case class Welcome(name: String, path: String, round: Int) extends Command
+case class Welcome(name: String, path: String, apocalypse: Int, round: Int) extends Command
 case class Goodbye(energy: Int) extends Command
 case class ReactBot(name: String, time: Int, energy: Int, view: View) extends Command
 case class ReactMiniBot(name: String, time: Int, energy: Int, dx: Int, dy: Int, view: View) extends Command
