@@ -1,5 +1,7 @@
 import sbt._
 import Keys._
+import sbtassembly.Plugin._
+import AssemblyKeys._
 
 object BuildSettings {
   val buildOrganization = "templemore"
@@ -10,6 +12,10 @@ object BuildSettings {
                       Seq (organization := buildOrganization,
                            scalaVersion := buildScalaVersion,
                            version      := buildVersion)
+
+  val assemblyOverrideSettings = Seq(assembleArtifact in packageScala := false,
+                                     jarName in assembly := "ScalatronBot.jar",
+                                     test in assembly := {})
 }
 
 object Dependencies {
@@ -17,7 +23,8 @@ object Dependencies {
   val extraResolvers = Seq("Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/")
 
   // General libraries
-  val general = Seq()
+  val config = "com.typesafe.config" % "config" % "0.3.0" % "compile"
+  val general = Seq(config)
 
   // Testing
   val specs2 = "org.specs2" %% "specs2" % "1.8.2" % "test"
@@ -31,7 +38,8 @@ object ScalatronBuild extends Build {
   import Dependencies._
   import BuildSettings._
 
-  lazy val allSettings = buildSettings ++ Seq(resolvers ++= extraResolvers, libraryDependencies ++= coreDeps)
+  lazy val allSettings = buildSettings ++ assemblySettings ++
+                         assemblyOverrideSettings ++ Seq(resolvers ++= extraResolvers, libraryDependencies ++= coreDeps)
 
   lazy val scalatronProject = Project("scalatron", file("."), settings = allSettings)
 }

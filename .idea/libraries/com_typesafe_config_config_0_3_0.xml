@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="com.typesafe.config_config_0.3.0">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/com.typesafe.config/config/jars/config-0.3.0.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$USER_HOME$/.ivy2/cache/com.typesafe.config/config/docs/config-0.3.0-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/com.typesafe.config/config/srcs/config-0.3.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

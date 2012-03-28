@@ -5,7 +5,8 @@ import scalatron.botwar.botPlugin.protocol._
 trait HandlerChain {
 
   type Handler = PartialFunction[Command, IndexedSeq[Action]]
-  private var handlers = List[Handler]()
+//  private var handlers = List[Handler]()
+  private var handlers = List[Handler](new RandomMovementHandler().react)
 
   def installHandlers(newHandlers: List[Handler]): Unit =
     handlers = newHandlers ++ handlers
