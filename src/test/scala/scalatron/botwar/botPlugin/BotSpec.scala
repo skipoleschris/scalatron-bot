@@ -36,6 +36,5 @@ class BotSpec extends Specification { def is =
   def handler3: PartialFunction[Command, IndexedSeq[Action]] = {
     case Goodbye(_) => Vector[Action]()
   }
-
 }
 

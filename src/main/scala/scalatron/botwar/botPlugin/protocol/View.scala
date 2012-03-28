@@ -6,7 +6,7 @@ case class View(entities: IndexedSeq[ViewEntity]) {
   def height: Int = scala.math.sqrt(entities.length).toInt
 }
 
-private[protocol] object View {
+object View {
   def apply(view: String): View = new View(view.map(ViewEntity.apply))
 }
 

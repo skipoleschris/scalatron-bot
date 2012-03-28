@@ -11,4 +11,6 @@ trait HandlerChain {
     handlers = newHandlers ++ handlers
 
   def forCommand(command: Command): Option[Handler] = handlers find (_.isDefinedAt(command))
+
+  private[handlers] def installedHandlers = handlers
 }
