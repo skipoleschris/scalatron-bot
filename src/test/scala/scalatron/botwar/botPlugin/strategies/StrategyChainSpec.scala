@@ -2,6 +2,7 @@ package scalatron.botwar.botPlugin.strategies
 
 import org.specs2.Specification
 import scalatron.botwar.botPlugin.protocol._
+import scalatron.botwar.botPlugin.configuration.BotConfig
 
 class StrategyChainSpec extends Specification { def is =
 
@@ -17,35 +18,23 @@ class StrategyChainSpec extends Specification { def is =
 
   def installStrategies = {
     val chain = new TestStrategyChain()
-    chain.installStrategies(strategy1 :: strategy3 :: Nil)
+    chain.installStrategies("TestStrategy1" :: "TestStrategy3" :: Nil, BotConfig(5000, 1, null))
 
-    chain.installedStrategies must_== (strategy1 :: strategy3 :: Nil)
+    chain.installedStrategies must haveSize(3)
   }
 
   def findStrategy = {
     val chain = new TestStrategyChain()
-    chain.installStrategies(strategy1 :: strategy3 :: Nil)
+    chain.installStrategies("TestStrategy1" :: "TestStrategy3" :: Nil, BotConfig(5000, 1, null))
 
-    chain.forCommand(Welcome("test", "test", 5000, 1)) must_== Some(strategy1)
+    chain.forCommand(Welcome("test", "test", 5000, 1)) must beSome[PartialFunction[Command, IndexedSeq[Action]]]
   }
 
   def noSuitableStrategy = {
     val chain = new TestStrategyChain()
-    chain.installStrategies(strategy1 :: strategy3 :: Nil)
+    chain.installStrategies("TestStrategy1" :: "TestStrategy3" :: Nil, BotConfig(5000, 1, null))
 
     chain.forCommand(ReactBot("Foo", 1, 100, View("____M____"))) must_== None
-  }
-
-  val strategy1: PartialFunction[Command, IndexedSeq[Action]] = {
-    case Welcome(_, _, _, _) => Vector[Action]()
-  }
-
-  val strategy2: PartialFunction[Command, IndexedSeq[Action]] = {
-    case ReactBot("Master", _, _, _) => Vector[Action](Move(1, 0), Status("foo"))
-  }
-
-  val strategy3: PartialFunction[Command, IndexedSeq[Action]] = {
-    case Goodbye(_) => Vector[Action]()
   }
 }
 

@@ -1,0 +1,16 @@
+Tasks & New Features
+--------------------
+
+- Definition of strategies from config file
+- Configurable strategies
+- Goodbye strategy that logs results
+
+- Extractors
+    - better extractors for View content
+    - extractors based on config values
+
+- Analysis support
+    - state filter to capture commands received and actions responded + stats
+    - analysis tool
+
+- Ability to maintain bot states between respond invocations

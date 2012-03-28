@@ -2,9 +2,10 @@ package scalatron.botwar.botPlugin.strategies
 
 import scalatron.botwar.botPlugin.protocol._
 import util.Random
+import scalatron.botwar.botPlugin.configuration.BotConfig
 
 class RandomMovementStrategy extends Strategy {
-  def react = {
+  def react(config: BotConfig) = {
     case cmd: ReactBot => Vector[Action](moveRandom)
     case cmd: ReactMiniBot => Vector[Action](moveRandom)
   }
