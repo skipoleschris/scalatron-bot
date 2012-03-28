@@ -1,13 +1,13 @@
 package scalatron.botwar.botPlugin
 
-import handlers.HandlerChain
+import strategies.StrategyChain
 import protocol.CommandParser
 
 class ControlFunctionFactory {
   def create: (String => String) = new Bot().respond _
 }
 
-class Bot extends CommandParser with HandlerChain {
+class Bot extends CommandParser with StrategyChain {
 
   def respond(input: String): String = {
     val actions = for (
