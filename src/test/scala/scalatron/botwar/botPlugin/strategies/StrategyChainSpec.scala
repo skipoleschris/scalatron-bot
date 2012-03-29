@@ -10,6 +10,7 @@ class StrategyChainSpec extends Specification { def is =
                                                                      endp ^
   "A Strategy Chain should"                                          ^
     "allow new strategies to be installed"                           ! installStrategies^
+    "install a no-op strategy for one that cannot be found"          ! installNoOpStrategy^
     "find a strategy for a given command"                            ! findStrategy^
     "return None if no strategy can be found for a command"          ! noSuitableStrategy^
                                                                      end
@@ -21,6 +22,12 @@ class StrategyChainSpec extends Specification { def is =
     chain.installStrategies("TestStrategy1" :: "TestStrategy3" :: Nil, BotConfig(5000, 1, null))
 
     chain.installedStrategies must haveSize(3)
+  }
+
+  def installNoOpStrategy = {
+    val chain = new TestStrategyChain()
+    chain.installStrategies("FooBar" :: Nil, BotConfig(5000, 1, null))
+    chain.installedStrategies must haveSize(2)
   }
 
   def findStrategy = {
