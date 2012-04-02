@@ -19,29 +19,29 @@ class StrategyChainSpec extends Specification { def is =
 
   def installStrategies = {
     val chain = new TestStrategyChain()
-    chain.installStrategies("TestStrategy1" :: "TestStrategy3" :: Nil, BotConfig(5000, 1, null))
+    chain.installStrategies("TestStrategy1" :: "TestStrategy3" :: Nil)
 
     chain.installedStrategies must haveSize(3)
   }
 
   def installNoOpStrategy = {
     val chain = new TestStrategyChain()
-    chain.installStrategies("FooBar" :: Nil, BotConfig(5000, 1, null))
+    chain.installStrategies("FooBar" :: Nil)
     chain.installedStrategies must haveSize(2)
   }
 
   def findStrategy = {
     val chain = new TestStrategyChain()
-    chain.installStrategies("TestStrategy1" :: "TestStrategy3" :: Nil, BotConfig(5000, 1, null))
+    chain.installStrategies("TestStrategy1" :: "TestStrategy3" :: Nil)
 
-    chain.forCommand(Welcome("test", "test", 5000, 1)) must beSome[PartialFunction[Command, IndexedSeq[Action]]]
+    chain.forRequest(Welcome("test", "test", 5000, 1)) must beSome[PartialFunction[Command, IndexedSeq[Action]]]
   }
 
   def noSuitableStrategy = {
     val chain = new TestStrategyChain()
-    chain.installStrategies("TestStrategy1" :: "TestStrategy3" :: Nil, BotConfig(5000, 1, null))
+    chain.installStrategies("TestStrategy1" :: "TestStrategy3" :: Nil)
 
-    chain.forCommand(ReactBot("Foo", 1, 100, View("____M____"))) must_== None
+    chain.forRequest(ReactBot("Foo", 1, 100, View("____M____"))) must_== None
   }
 }
 

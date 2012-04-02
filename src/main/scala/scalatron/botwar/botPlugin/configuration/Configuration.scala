@@ -1,7 +1,7 @@
 package scalatron.botwar.botPlugin.configuration
 
 import java.io.File
-import com.typesafe.config.{ConfigValue, ConfigFactory}
+import com.typesafe.config.ConfigFactory
 
 trait Configuration {
   private var _botConfig: BotConfig = _
@@ -12,8 +12,8 @@ trait Configuration {
     val config = ConfigFactory.parseFile(new File(path, "bot.conf"))
     _botConfig = BotConfig(apocalypse, round, config)
 
-    installStrategies(_botConfig.strategyNames map (_.unwrapped().toString), _botConfig)
+    installStrategies(_botConfig.strategyNames map (_.unwrapped().toString))
   }
 
-  def installStrategies(strategies: List[String], config: BotConfig)
+  def installStrategies(strategies: List[String])
 }

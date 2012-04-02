@@ -1,14 +1,4 @@
-package scalatron.botwar.botPlugin.protocol
-
-case class View(entities: IndexedSeq[ViewEntity]) {
-  def maxRange: Int = (width - 1) / 2
-  def width: Int = scala.math.sqrt(entities.length).toInt
-  def height: Int = scala.math.sqrt(entities.length).toInt
-}
-
-object View {
-  def apply(view: String): View = new View(view.map(ViewEntity.apply))
-}
+package scalatron.botwar.botPlugin.domain
 
 sealed trait ViewEntity
 case object OccludedByWall extends ViewEntity
@@ -23,7 +13,7 @@ case object Toxifere extends ViewEntity  // bad plant, poisonous
 case object Fluppet extends ViewEntity   // good beast, food
 case object Snorg extends ViewEntity     // bad beast, predator
 
-private[protocol] object ViewEntity {
+object ViewEntity {
   def apply(ch: Char) = ch match {
     case '?' => OccludedByWall
     case '_' => EmptyCell

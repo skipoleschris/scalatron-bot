@@ -4,19 +4,19 @@ import scalatron.botwar.botPlugin.configuration.BotConfig
 import scalatron.botwar.botPlugin.protocol._
 
 class TestStrategy1 extends Strategy {
-  def react(config: BotConfig) = {
-    case Welcome(_, _, _, _) => Vector[Action]()
+  def react = {
+    case Welcome(_, _, _, _) => null
   }
 }
 
 class TestStrategy2 extends Strategy {
-  def react(config: BotConfig) = {
-    case ReactBot("Master", _, _, _) => Vector[Action](Move(1, 0), Status("foo"))
+  def react = {
+    case ReactBot("Master", _, _, _) => null
   }
 }
 
 class TestStrategy3 extends Strategy {
-  def react(config: BotConfig) = {
-    case Goodbye(_) => Vector[Action]()
+  def react = {
+    case Goodbye(_) => null
   }
 }
