@@ -37,7 +37,7 @@ class StrategyChainSpec extends Specification with StrategyChain { def is =
     val configEntries = Map(("bot.strategies" -> ("TestStrategy1" :: "TestStrategy2" :: Nil).asJava)).asJava
     val config = ConfigFactory.parseMap(configEntries)
     val strategies = createStrategies(new BotConfig(5000, 1, config))
-    val request = Request("Master", 1, 100, "____M____", None)
+    val request = Request("Master", 1, 100, "____M____", None, Map())
 
     forRequest(strategies, request) must beSome[Strategy#StrategyFunction]
   }
@@ -46,7 +46,7 @@ class StrategyChainSpec extends Specification with StrategyChain { def is =
     val configEntries = Map(("bot.strategies" -> ("TestStrategy1" :: "TestStrategy2" :: Nil).asJava)).asJava
     val config = ConfigFactory.parseMap(configEntries)
     val strategies = createStrategies(new BotConfig(5000, 1, config))
-    val request = Request("1:", 1, 100, "____M____", None)
+    val request = Request("1:", 1, 100, "____M____", None, Map())
 
     forRequest(strategies, request) must_== None
   }

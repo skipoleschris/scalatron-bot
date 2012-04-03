@@ -3,7 +3,7 @@ package scalatron.botwar.botPlugin.domain
 object MiniBotNameEncodeDecode {
 
   def newName(sequenceGenerator: Stream[Int], state: Map[String, String]) =
-    ("%s:%s".format(sequenceGenerator.head, encodeState(state)), sequenceGenerator.tail)
+    ("%d".format(sequenceGenerator.head), "%d:%s".format(sequenceGenerator.head, encodeState(state)), sequenceGenerator.tail)
 
   def encode(name: String, state: Map[String, String]) = "%s:%s".format(name, encodeState(state))
 

@@ -26,7 +26,7 @@ case class BotControlResponder(environment: BotEnvironment,
     def lift[T](f: => T): Option[T] = Some(f)
 
     val result = for (
-      req <- lift(Request(name, time, energy, view, offset));
+      req <- lift(Request(name, time, energy, view, offset, environment.trackedState));
       strategy <- forRequest(environment.strategies, req);
       outcomes <- lift(strategy.apply(req));
       result <- lift(Outcome.asResult(req.context.name, environment.sequenceGenerator, outcomes))
@@ -35,7 +35,7 @@ case class BotControlResponder(environment: BotEnvironment,
     result map { r =>
       val nextEnv = (r.newMiniBots.foldLeft(environment) { (env, bot) =>
         env.updateTrackedState(bot._1, bot._2)
-      }) replace r.sequenceGenerator
+      }) updateTrackedState (r.name, r.trackedState) replace r.sequenceGenerator
 
       BotControlResponder(nextEnv, r.actions.toIndexedSeq)
     } getOrElse this
