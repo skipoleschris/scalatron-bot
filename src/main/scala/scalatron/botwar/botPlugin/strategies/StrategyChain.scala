@@ -7,10 +7,8 @@ trait StrategyChain {
   def forRequest(strategies: List[Strategy#StrategyFunction], request: Request): Option[Strategy#StrategyFunction] =
     strategies find (_.isDefinedAt(request))
 
-  def createStrategies(botConfig: BotConfig): List[Strategy#StrategyFunction] = {
-    val newStrategyNames = botConfig.strategyNames map (_.unwrapped().toString)
-    newStrategyNames map instantiate(botConfig)
-  }
+  def createStrategies(botConfig: BotConfig): List[Strategy#StrategyFunction] =
+    botConfig.strategyNames map instantiate(botConfig)
 
   private def instantiate(botConfig: BotConfig)(strategyName: String) = try {
     val className = "scalatron.botwar.botPlugin.strategies."  + strategyName

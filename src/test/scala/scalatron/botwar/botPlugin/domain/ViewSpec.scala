@@ -1,4 +1,4 @@
-package scalatron.botwar.botPlugin.protocol
+package scalatron.botwar.botPlugin.domain
 
 import org.specs2.Specification
 
@@ -7,7 +7,7 @@ class ViewSpec extends Specification { def is =
   "Specification for View class"                                     ^
                                                                      endp^
   "A View should"                                                    ^
-    "be buildable from an encoded string"                            ! build ^
+    "be buildable from an encoded string"                            ! build^
     "know the view dimensions"                                       ! dimensions^
     "know the distance viewable in any direction"                    ! distance^
                                                                      end

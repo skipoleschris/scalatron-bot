@@ -21,12 +21,12 @@ class CommandParserSpec extends Specification with CommandParser { def is =
 
   def reactBot = {
     val reactTo = parse("React(entity=Master,time=100,view=____M____,energy=1000)")
-    reactTo.get must_== ReactBot("Master", 100, 1000, simpleView)
+    reactTo.get must_== ReactBot("Master", 100, 1000, "____M____")
   }
 
   def reactMiniBot = {
     val reactTo = parse("React(entity=Mini,time=100,view=____M____,energy=1000,dx=-10,dy=3)")
-    reactTo.get must_== ReactMiniBot("Mini", 100, 1000, -10, 3, simpleView)
+    reactTo.get must_== ReactMiniBot("Mini", 100, 1000, -10, 3, "____M____")
   }
 
   def goodbye = {
@@ -41,7 +41,5 @@ class CommandParserSpec extends Specification with CommandParser { def is =
     val reactTo = parse("React(entity=Master,view=____M____,energy=1000)")
     reactTo must_== None
   }
-
-  def simpleView = View(Vector(EmptyCell, EmptyCell, EmptyCell, EmptyCell, MyBot, EmptyCell, EmptyCell, EmptyCell, EmptyCell))
 }
 

@@ -9,9 +9,11 @@ object MiniBotNameEncodeDecode {
 
   def decode(encoded: String): (String, Map[String, String]) = {
     val colonIndex = encoded indexOf ":"
-    val params = encoded substring (colonIndex + 1) split
-                   (";") map (_ split "/") map
-                   (item => (item(0), item(1)))
+    val paramString = encoded substring (colonIndex + 1)
+    val params =  if (paramString == "") Array[(String, String)]()
+                  else paramString split
+                    (";") map (_ split "/") map
+                    (item => (item(0), item(1)))
     (encoded.substring(0, colonIndex), Map(params : _*))
   }
 
