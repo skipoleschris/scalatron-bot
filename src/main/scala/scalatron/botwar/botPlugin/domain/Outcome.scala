@@ -16,8 +16,8 @@ case class ExplodeOutcome(size: Int) extends Outcome {
 
 case class SpawnOutcome(position: DeltaOffset, energy: Int, state: State) extends Outcome {
   def encode(result: OutcomeResult) = {
-    val name = MiniBotNameEncodeDecode.newName(state.running)
-    result withAction Spawn(position.x, position.y, name, energy) withNewMiniBot (name, state.tracked)
+    val identity = MiniBotNameEncodeDecode.newName(result.sequenceGenerator, state.running)
+    result withAction Spawn(position.x, position.y, identity._1, energy) withNewMiniBot (identity, state.tracked)
   }
 }
 
@@ -38,18 +38,19 @@ case class UpdateTrackedState(state: Map[String, String]) extends Outcome {
 }
 
 case class OutcomeResult(name: String,
+                         sequenceGenerator: Stream[Int],
                          actions: Set[Action] = Set(),
                          newMiniBots: Set[(String, Map[String, String])] = Set(),
                          trackedState: Map[String, String] = Map()) {
   def withAction(action: Action) = copy(actions = actions + action)
-  def withNewMiniBot(name: String, trackedState: Map[String, String]) =
-    copy(newMiniBots = newMiniBots + (name -> trackedState))
+  def withNewMiniBot(identity: (String, Stream[Int]), trackedState: Map[String, String]) =
+    copy(newMiniBots = newMiniBots + (identity._1 -> trackedState), sequenceGenerator = identity._2)
   def withTrackedState(updatedState: Map[String, String]) = copy(trackedState = updatedState)
 }
 
 object Outcome {
-  def asResult(name: String, outcomes: Set[Outcome]): OutcomeResult = {
+  def asResult(name: String, sequenceGenerator: Stream[Int], outcomes: Set[Outcome]): OutcomeResult = {
     def encodeOutcome(result: OutcomeResult, outcome: Outcome) = outcome.encode(result)
-    outcomes.foldLeft(OutcomeResult(name))(encodeOutcome)
+    outcomes.foldLeft(OutcomeResult(name, sequenceGenerator))(encodeOutcome)
   }
 }

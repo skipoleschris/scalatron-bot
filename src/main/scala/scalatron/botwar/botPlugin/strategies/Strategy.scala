@@ -4,5 +4,6 @@ import scalatron.botwar.botPlugin.configuration.BotConfig
 import scalatron.botwar.botPlugin.domain.{Request, Outcome}
 
 trait Strategy {
-  def react(config: BotConfig): PartialFunction[Request, Set[Outcome]]
+  type StrategyFunction = PartialFunction[Request, Set[Outcome]]
+  def react(config: BotConfig): StrategyFunction
 }

@@ -29,13 +29,13 @@ case class BotControlResponder(environment: BotEnvironment,
       req <- lift(Request(name, time, energy, view, offset));
       strategy <- forRequest(environment.strategies, req);
       outcomes <- lift(strategy.apply(req));
-      result <- lift(Outcome.asResult(req.context.name, outcomes))
+      result <- lift(Outcome.asResult(req.context.name, environment.sequenceGenerator, outcomes))
     ) yield result
 
     result map { r =>
-      val nextEnv = r.newMiniBots.foldLeft(environment) { (env, bot) =>
+      val nextEnv = (r.newMiniBots.foldLeft(environment) { (env, bot) =>
         env.updateTrackedState(bot._1, bot._2)
-      }
+      }) replace r.sequenceGenerator
 
       BotControlResponder(nextEnv, r.actions.toIndexedSeq)
     } getOrElse this

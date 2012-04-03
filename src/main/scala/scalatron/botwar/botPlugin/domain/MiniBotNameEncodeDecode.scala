@@ -2,9 +2,8 @@ package scalatron.botwar.botPlugin.domain
 
 object MiniBotNameEncodeDecode {
 
-  var counter = Stream.from(1)
-
-  def newName(state: Map[String, String]) = "%s:%s".format(nextId(), encodeState(state))
+  def newName(sequenceGenerator: Stream[Int], state: Map[String, String]) =
+    ("%s:%s".format(sequenceGenerator.head, encodeState(state)), sequenceGenerator.tail)
 
   def encode(name: String, state: Map[String, String]) = "%s:%s".format(name, encodeState(state))
 
@@ -14,12 +13,6 @@ object MiniBotNameEncodeDecode {
                    (";") map (_ split "/") map
                    (item => (item(0), item(1)))
     (encoded.substring(0, colonIndex), Map(params : _*))
-  }
-
-  private def nextId() = this.synchronized {
-    val id = counter.head
-    counter = counter.tail
-    id.toString
   }
 
   private def encodeState(state: Map[String, String]) =
