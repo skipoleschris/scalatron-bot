@@ -1,22 +1,20 @@
 package scalatron.botwar.botPlugin.strategies
 
-import scalatron.botwar.botPlugin.configuration.Configuration
 import scalatron.botwar.botPlugin.domain.{Request, Outcome}
+import scalatron.botwar.botPlugin.configuration.BotConfig
 
 trait StrategyChain {
-  this: Configuration =>
-
   type StrategyFunction = PartialFunction[Request, Set[Outcome]]
-  private var strategies = List[StrategyFunction]()
 
-  def installStrategies(newStrategyNames: List[String]): Unit =
-    strategies = (newStrategyNames map instantiate) ++ strategies
+  def forRequest(strategies: List[StrategyFunction], request: Request): Option[StrategyFunction] =
+    strategies find (_.isDefinedAt(request))
 
-  def forRequest(request: Request): Option[StrategyFunction] = strategies find (_.isDefinedAt(request))
+  def createStrategies(botConfig: BotConfig): List[StrategyFunction] = {
+    val newStrategyNames = botConfig.strategyNames map (_.unwrapped().toString)
+    newStrategyNames map instantiate(botConfig)
+  }
 
-  private[strategies] def installedStrategies = strategies
-
-  private def instantiate(strategyName: String) = try {
+  private def instantiate(botConfig: BotConfig)(strategyName: String) = try {
     val className = "scalatron.botwar.botPlugin.strategies."  + strategyName
     val clazz = getClass.getClassLoader.loadClass(className)
     val strategy = clazz.newInstance().asInstanceOf[Strategy]
