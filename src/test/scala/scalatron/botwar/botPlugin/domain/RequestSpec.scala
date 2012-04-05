@@ -12,7 +12,7 @@ class RequestSpec extends Specification { def is =
                                                                      end
 
   def create = {
-    val request = Request("Master", 1, 1000, "____M____", None, Map())
+    val request = Request("Master", 1, 1000, "____M____", None, Map.empty)
 
     (request.context.name must_== "Master") and
     (request.context.time must_== 1) and

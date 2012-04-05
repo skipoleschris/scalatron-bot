@@ -14,7 +14,7 @@ object Request {
                               else MiniBotNameEncodeDecode.decode(name)
 
     val context = Context(nameAndRunningState._1, time, energy, View(view), offset)
-    val state = State(nameAndRunningState._2, trackedState.get(nameAndRunningState._1) getOrElse Map())
+    val state = State(nameAndRunningState._2, trackedState.get(nameAndRunningState._1) getOrElse Map.empty)
     Request(context, state)
   }
 }

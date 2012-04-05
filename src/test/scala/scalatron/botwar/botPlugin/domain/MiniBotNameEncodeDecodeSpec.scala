@@ -25,7 +25,7 @@ class MiniBotNameEncodeDecodeSpec extends Specification {def is =
   }
 
   def newNameNoState = {
-    val identity = MiniBotNameEncodeDecode.newName(Stream.from(1), Map())
+    val identity = MiniBotNameEncodeDecode.newName(Stream.from(1), Map.empty)
 
     (identity._1 must_== "1") and
     (identity._2 must_== "1:") and
@@ -38,7 +38,7 @@ class MiniBotNameEncodeDecodeSpec extends Specification {def is =
   }
 
   def encodeNoState = {
-    val encoded = MiniBotNameEncodeDecode.encode("1", Map())
+    val encoded = MiniBotNameEncodeDecode.encode("1", Map.empty)
     encoded must_== "1:"
   }
 

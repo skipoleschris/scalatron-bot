@@ -6,7 +6,7 @@ import scalatron.botwar.botPlugin.strategies.StrategyChain
 
 
 case class BotControlResponder(environment: BotEnvironment,
-                               lastActions: IndexedSeq[Action] = Vector()) extends BotResponder with StrategyChain {
+                               lastActions: IndexedSeq[Action] = Vector.empty) extends BotResponder with StrategyChain {
   def response = (lastActions map (_.toString)) mkString "|"
 
   protected def forCommand(command: Command): Option[BotResponder] = command match {

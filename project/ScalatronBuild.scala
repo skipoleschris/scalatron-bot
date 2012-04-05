@@ -11,7 +11,8 @@ object BuildSettings {
   val buildSettings = Defaults.defaultSettings ++
                       Seq (organization := buildOrganization,
                            scalaVersion := buildScalaVersion,
-                           version      := buildVersion)
+                           version      := buildVersion) ++
+                      ScctPlugin.scctSettings
 
   val assemblyOverrideSettings = Seq(assembleArtifact in packageScala := false,
                                      jarName in assembly := "ScalatronBot.jar",

@@ -19,6 +19,8 @@ class OutcomeSpec extends Specification { def is =
                                                                      endp^
   "A Set of Outcomes should"                                         ^
     "be convertable into a result"                                   ! asResult^
+    "exclude outcomes not compatible with a master"                  ! masterCompatibility^
+    "exclude outcomes not compatible with a mini-bot"                ! miniBotCompatibility^
                                                                      end
 
   def encodeMove = {
@@ -82,7 +84,43 @@ class OutcomeSpec extends Specification { def is =
     (result.name must_== "Master") and
     (result.sequenceGenerator.head must_== 1) and
     (result.actions must containAllOf(Seq(Move(1, -1), Say("Test"))))
+  }
 
+  def masterCompatibility = {
+    val allOutcomes = Set[Outcome](MoveOutcome(DeltaOffset(1, -1)),
+                                   ExplodeOutcome(5),
+                                   SpawnOutcome(DeltaOffset(1, -1), 100, State(Map("foo" -> "FOO"), Map("bar" -> "BAR"))),
+                                   StatusOutcome("status"),
+                                   SayOutcome("say"),
+                                   UpdateRunningState("1", Map.empty),
+                                   UpdateTrackedState(Map("baz" -> "BAZ")))
+    val result = Outcome.asResult("Master", Stream.from(1), allOutcomes)
+    (result.actions must haveSize(4)) and
+    (result.actions must containAllOf(Seq(Move(1, -1),
+                                          Spawn(1, -1, "1:foo/FOO", 100),
+                                          Status("status"),
+                                          Say("say")))) and
+    (result.trackedState must contain(("baz" -> "BAZ"))) and
+    (result.newMiniBots must haveSize(1))
+  }
+
+  def miniBotCompatibility = {
+    val allOutcomes = Set[Outcome](MoveOutcome(DeltaOffset(1, -1)),
+                                   ExplodeOutcome(5),
+                                   SpawnOutcome(DeltaOffset(1, -1), 100, State(Map("foo" -> "FOO"), Map("bar" -> "BAR"))),
+                                   StatusOutcome("status"),
+                                   SayOutcome("say"),
+                                   UpdateRunningState("1", Map("bam" -> "BAM")),
+                                   UpdateTrackedState(Map("baz" -> "BAZ")))
+    val result = Outcome.asResult("1", Stream.from(1), allOutcomes)
+    (result.actions must haveSize(5)) and
+    (result.actions must containAllOf(Seq(Move(1, -1),
+                                          Explode(5),
+                                          Status("status"),
+                                          Say("say"),
+                                          SetName("1:bam/BAM")))) and
+      (result.trackedState must contain(("baz" -> "BAZ"))) and
+      (result.newMiniBots must beEmpty)
   }
 }
 
