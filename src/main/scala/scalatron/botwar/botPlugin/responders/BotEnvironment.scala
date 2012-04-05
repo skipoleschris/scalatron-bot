@@ -8,6 +8,7 @@ case class BotEnvironment(botConfig: BotConfig,
                           trackedState: Map[String, Map[String, String]] = Map.empty,
                           sequenceGenerator: Stream[Int] = Stream.from(1)) {
   def updateTrackedState(name: String, entries: Map[String, String]) =
-    copy(trackedState = trackedState.updated(name, entries))
+    copy(trackedState = if ( entries.isEmpty ) trackedState - name else trackedState.updated(name, entries))
+
   def replace(seq: Stream[Int]) = copy(sequenceGenerator = seq)
 }

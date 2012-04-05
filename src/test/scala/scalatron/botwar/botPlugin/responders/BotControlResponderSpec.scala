@@ -15,6 +15,20 @@ class BotControlResponderSpec extends Specification {def is =
     "generate a response string from the contained actions"          ! actionsResponse^
     "not react to a Welcome command"                                 ! welcomeCommand^
     "not react to a Goodbye command"                                 ! goodbyeCommand^
+                                                                     endp^
+  "Reacting to a React command on Master should return a responder that" ^
+    "contains a simple action"                                       ! pending^
+    "removes tracked state if no update outome"                      ! pending^
+    "updates the tracked state for the master"                       ! pending^
+    "spawns a new mini bot with no state"                            ! pending^
+    "spawns a new mini bot with running state"                       ! pending^
+    "spawns a new mini bot with tracked state"                       ! pending^
+                                                                     endp^
+  "Reacting to a React command on MiniBot should return responder that" ^
+    "contains a simple action"                                       ! pending^
+    "removed tracked stats if no update outcome"                     ! pending^
+    "updates the tracked state for the mini bot"                     ! pending^
+    "updates the name of the mini bot with running state"            ! pending^
                                                                      end
 
   def emptyResponse = {
