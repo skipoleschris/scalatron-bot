@@ -1,8 +1,8 @@
 package scalatron.botwar.botPlugin.responders
 
 import scalatron.botwar.botPlugin.protocol._
-import scalatron.botwar.botPlugin.domain.{Outcome, Request, DeltaOffset}
 import scalatron.botwar.botPlugin.strategies.StrategyChain
+import scalatron.botwar.botPlugin.domain.{OutcomeResult, Outcome, Request, DeltaOffset}
 
 
 case class BotControlResponder(environment: BotEnvironment,
@@ -25,19 +25,24 @@ case class BotControlResponder(environment: BotEnvironment,
                          offset: Option[DeltaOffset] = None): BotResponder = {
     def lift[T](f: => T): Option[T] = Some(f)
 
-    val result = for (
-      req <- lift(Request(name, time, energy, view, offset, environment.trackedState));
-      strategy <- forRequest(environment.strategies, req);
-      outcomes <- lift(strategy.apply(req));
-      result <- lift(Outcome.asResult(req.context.name, environment.sequenceGenerator, outcomes))
-    ) yield result
+    val req = Request(name, time, energy, view, offset, environment.trackedState)
+    val allOutcomes = (for (
+      strategyGroup <- environment.strategies;
+      strategy <- forRequest(strategyGroup, req);
+      outcomes <- lift(strategy.apply(req))
+    ) yield outcomes).flatten
 
-    result map { r =>
+    Outcome.asResult(req.context.name, environment.sequenceGenerator, allOutcomes) map { r =>
       val nextEnv = (r.newMiniBots.foldLeft(environment) { (env, bot) =>
         env.updateTrackedState(bot._1, bot._2)
       }) updateTrackedState (r.name, r.trackedState) replace r.sequenceGenerator
 
       BotControlResponder(nextEnv, r.actions.toIndexedSeq)
     } getOrElse this
+  }
+
+  case class StrategyOutcome(name: String = "", outcomes: Set[Outcome] = Set()) {
+    def append(outcome: StrategyOutcome) = StrategyOutcome(outcome.name, outcome.outcomes ++ outcomes)
+    def lift: Option[StrategyOutcome] = if ( name == "") None else Some(this)
   }
 }

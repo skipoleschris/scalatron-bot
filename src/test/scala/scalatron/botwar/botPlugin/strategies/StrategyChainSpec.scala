@@ -18,37 +18,39 @@ class StrategyChainSpec extends Specification with StrategyChain { def is =
                                                                      end
 
   def strategyCreation = {
-    val configEntries = Map(("bot.strategies" -> ("TestStrategy1" :: "TestStrategy2" :: Nil).asJava)).asJava
+    val configEntries = Map("bot.strategies" -> Map("test" -> ("TestStrategy1" :: "TestStrategy2" :: Nil).asJava).asJava).asJava
     val config = ConfigFactory.parseMap(configEntries)
-    val strategies = createStrategies(new BotConfig(5000, 1, config))
+    val strategies = createStrategyGroups(new BotConfig(5000, 1, config))
 
-    strategies must haveSize(2)
+    (strategies must haveSize(1)) and
+    (strategies.head must haveSize(2))
   }
 
   def installNoOpStrategy = {
-    val configEntries = Map(("bot.strategies" -> ("FooBar" :: Nil).asJava)).asJava
+    val configEntries = Map("bot.strategies" -> Map("test" -> ("FooBar" :: Nil).asJava).asJava).asJava
     val config = ConfigFactory.parseMap(configEntries)
-    val strategies = createStrategies(new BotConfig(5000, 1, config))
+    val strategies = createStrategyGroups(new BotConfig(5000, 1, config))
 
-    strategies must haveSize(1)
+    (strategies must haveSize(1)) and
+    (strategies.head must haveSize(1))
   }
 
   def findStrategy = {
-    val configEntries = Map(("bot.strategies" -> ("TestStrategy1" :: "TestStrategy2" :: Nil).asJava)).asJava
+    val configEntries = Map("bot.strategies" -> Map("test" -> ("TestStrategy1" :: "TestStrategy2" :: Nil).asJava).asJava).asJava
     val config = ConfigFactory.parseMap(configEntries)
-    val strategies = createStrategies(new BotConfig(5000, 1, config))
+    val strategies = createStrategyGroups(new BotConfig(5000, 1, config))
     val request = Request("Master", 1, 100, "____M____", None, Map.empty)
 
-    forRequest(strategies, request) must beSome[Strategy#StrategyFunction]
+    forRequest(strategies.head, request) must beSome[Strategy#StrategyFunction]
   }
 
   def noSuitableStrategy = {
-    val configEntries = Map(("bot.strategies" -> ("TestStrategy1" :: "TestStrategy2" :: Nil).asJava)).asJava
+    val configEntries = Map("bot.strategies" -> Map("test" -> ("TestStrategy1" :: "TestStrategy2" :: Nil).asJava).asJava).asJava
     val config = ConfigFactory.parseMap(configEntries)
-    val strategies = createStrategies(new BotConfig(5000, 1, config))
+    val strategies = createStrategyGroups(new BotConfig(5000, 1, config))
     val request = Request("1:", 1, 100, "____M____", None, Map.empty)
 
-    forRequest(strategies, request) must_== None
+    forRequest(strategies.head, request) must_== None
   }
 }
 

@@ -21,6 +21,7 @@ class OutcomeSpec extends Specification { def is =
     "be convertable into a result"                                   ! asResult^
     "exclude outcomes not compatible with a master"                  ! masterCompatibility^
     "exclude outcomes not compatible with a mini-bot"                ! miniBotCompatibility^
+    "not convert to a result if empty"                               ! emptyOutcomes^
                                                                      end
 
   def encodeMove = {
@@ -79,7 +80,7 @@ class OutcomeSpec extends Specification { def is =
   }
 
   def asResult = {
-    val result = Outcome.asResult("Master", Stream.from(1), Set(MoveOutcome(DeltaOffset(1, -1)), SayOutcome("Test")))
+    val result = Outcome.asResult("Master", Stream.from(1), Set(MoveOutcome(DeltaOffset(1, -1)), SayOutcome("Test"))).get
 
     (result.name must_== "Master") and
     (result.sequenceGenerator.head must_== 1) and
@@ -94,7 +95,7 @@ class OutcomeSpec extends Specification { def is =
                                    SayOutcome("say"),
                                    UpdateRunningState("1", Map.empty),
                                    UpdateTrackedState(Map("baz" -> "BAZ")))
-    val result = Outcome.asResult("Master", Stream.from(1), allOutcomes)
+    val result = Outcome.asResult("Master", Stream.from(1), allOutcomes).get
     (result.actions must haveSize(4)) and
     (result.actions must containAllOf(Seq(Move(1, -1),
                                           Spawn(1, -1, "1:foo/FOO", 100),
@@ -112,7 +113,7 @@ class OutcomeSpec extends Specification { def is =
                                    SayOutcome("say"),
                                    UpdateRunningState("1", Map("bam" -> "BAM")),
                                    UpdateTrackedState(Map("baz" -> "BAZ")))
-    val result = Outcome.asResult("1", Stream.from(1), allOutcomes)
+    val result = Outcome.asResult("1", Stream.from(1), allOutcomes).get
     (result.actions must haveSize(5)) and
     (result.actions must containAllOf(Seq(Move(1, -1),
                                           Explode(5),
@@ -121,6 +122,10 @@ class OutcomeSpec extends Specification { def is =
                                           SetName("1:bam/BAM")))) and
       (result.trackedState must contain(("baz" -> "BAZ"))) and
       (result.newMiniBots must beEmpty)
+  }
+
+  def emptyOutcomes = {
+    Outcome.asResult("1", Stream.from(1), Set.empty) must_== None
   }
 }
 

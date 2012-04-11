@@ -54,11 +54,12 @@ case class OutcomeResult(name: String,
 }
 
 object Outcome {
-  def asResult(name: String, sequenceGenerator: Stream[Int], outcomes: Set[Outcome]): OutcomeResult = {
+  def asResult(name: String, sequenceGenerator: Stream[Int], outcomes: Set[Outcome]): Option[OutcomeResult] = {
     def encodeOutcome(result: OutcomeResult, outcome: Outcome) = outcome.encode(result)
     def compatibility(forMaster: Boolean)(outcome: Outcome) =
       if ( forMaster ) outcome.compatibleWithMaster else outcome.compatibleWithMiniBot
 
-    (outcomes filter compatibility(name == "Master")).foldLeft(OutcomeResult(name, sequenceGenerator))(encodeOutcome)
+    if ( outcomes.isEmpty ) None
+    else Some((outcomes filter compatibility(name == "Master")).foldLeft(OutcomeResult(name, sequenceGenerator))(encodeOutcome))
   }
 }

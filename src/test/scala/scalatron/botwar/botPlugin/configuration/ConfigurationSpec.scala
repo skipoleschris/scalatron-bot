@@ -8,15 +8,23 @@ class ConfigurationSpec extends Specification with Configuration { def is =
                                                                      endp^
   "A Configuration should"                                           ^
     "load the bot configuration file"                                ! loadConfig^
+    "define the different strategy groups"                           ! strategyGroups^
                                                                      end
 
   def loadConfig = {
-    val botConfig = configure("src/test/resources", 5000, 1)
+    val botConfig = configure("src/test/resources/configtest", 5000, 1)
 
     (botConfig.apocalypse must_== 5000) and
     (botConfig.round must_== 1) and
-    (botConfig.strategyNames must_== ("RandomMovementStrategy" :: Nil)) and
     (botConfig.config must not beNull)
+  }
+
+  def strategyGroups = {
+    val botConfig = configure("src/test/resources/configtest", 5000, 1)
+
+    (botConfig.strategyGroups.keys must containAllOf(Seq("movement", "others"))) and
+    (botConfig.strategyGroups.apply("movement") must_== ("RandomMovementStrategy" :: Nil)) and
+    (botConfig.strategyGroups.apply("others") must_== ("NoOpStrategy" :: Nil))
   }
 }
 
