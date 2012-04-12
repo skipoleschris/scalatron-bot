@@ -53,3 +53,10 @@ class ReverseRunningStateStrategy extends Strategy {
       Set(UpdateRunningState(name, running map (entry => (entry._1, entry._2.reverse))))
   }
 }
+
+class ExplodeStrategy extends Strategy {
+  def react(config: BotConfig) = {
+    case Request(Context(name, _, _, _, _), _) if ( name != "Master" ) => Set(ExplodeOutcome(3))
+  }
+}
+

@@ -1,15 +1,17 @@
 package scalatron.botwar.botPlugin.configuration
 
 import scala.collection.JavaConverters._
-import com.typesafe.config.{ConfigList, ConfigValue, Config}
-import java.util.Map.Entry
+import com.typesafe.config.Config
 
 case class BotConfig(apocalypse: Int, round: Int, config: Config) {
-  def strategyGroups: Map[String, List[String]] = {
-    def strategies = config.getConfig("bot.strategies").entrySet().asScala
-    def values(entry: Entry[String, ConfigValue]) = entry.getValue.asInstanceOf[ConfigList].toArray(Array[ConfigValue]())
-    def stringValues(entry: Entry[String, ConfigValue]) = (values(entry) map (_.unwrapped().toString)).toList
+  def strategyGroups: IndexedSeq[(String, List[String])] = {
+    def asTuple(name: String, l: java.util.List[String]): (String, List[String]) = (name, l.toArray(Array[String]()).toList)
 
-    (strategies map (entry => (entry.getKey, stringValues(entry)))).toMap
+    val groupsConfig = config.getConfig("bot.strategies.groups")
+    val groupNames = groupsConfig.entrySet.asScala map (_.getKey)
+    val groups = (groupNames map (name => asTuple(name, groupsConfig.getStringList(name)))).toMap
+    val ordering = config.getStringList("bot.strategies.order").toArray(Array[String]())
+
+    (ordering map (name => name -> groups(name))).toIndexedSeq
   }
 }

@@ -2,7 +2,7 @@ package scalatron.botwar.botPlugin.responders
 
 import scalatron.botwar.botPlugin.protocol._
 import scalatron.botwar.botPlugin.strategies.StrategyChain
-import scalatron.botwar.botPlugin.domain.{OutcomeResult, Outcome, Request, DeltaOffset}
+import scalatron.botwar.botPlugin.domain.{Outcome, Request, DeltaOffset}
 
 
 case class BotControlResponder(environment: BotEnvironment,
@@ -39,10 +39,5 @@ case class BotControlResponder(environment: BotEnvironment,
 
       BotControlResponder(nextEnv, r.actions.toIndexedSeq)
     } getOrElse this.copy(lastActions = Vector.empty)
-  }
-
-  case class StrategyOutcome(name: String = "", outcomes: Set[Outcome] = Set()) {
-    def append(outcome: StrategyOutcome) = StrategyOutcome(outcome.name, outcome.outcomes ++ outcomes)
-    def lift: Option[StrategyOutcome] = if ( name == "") None else Some(this)
   }
 }

@@ -80,7 +80,7 @@ class OutcomeSpec extends Specification { def is =
   }
 
   def asResult = {
-    val result = Outcome.asResult("Master", Stream.from(1), Set(MoveOutcome(DeltaOffset(1, -1)), SayOutcome("Test"))).get
+    val result = Outcome.asResult("Master", Stream.from(1), Vector(MoveOutcome(DeltaOffset(1, -1)), SayOutcome("Test"))).get
 
     (result.name must_== "Master") and
     (result.sequenceGenerator.head must_== 1) and
@@ -88,13 +88,13 @@ class OutcomeSpec extends Specification { def is =
   }
 
   def masterCompatibility = {
-    val allOutcomes = Set[Outcome](MoveOutcome(DeltaOffset(1, -1)),
-                                   ExplodeOutcome(5),
-                                   SpawnOutcome(DeltaOffset(1, -1), 100, State(Map("foo" -> "FOO"), Map("bar" -> "BAR"))),
-                                   StatusOutcome("status"),
-                                   SayOutcome("say"),
-                                   UpdateRunningState("1", Map.empty),
-                                   UpdateTrackedState(Map("baz" -> "BAZ")))
+    val allOutcomes = Vector[Outcome](MoveOutcome(DeltaOffset(1, -1)),
+                                      ExplodeOutcome(5),
+                                      SpawnOutcome(DeltaOffset(1, -1), 100, State(Map("foo" -> "FOO"), Map("bar" -> "BAR"))),
+                                      StatusOutcome("status"),
+                                      SayOutcome("say"),
+                                      UpdateRunningState("1", Map.empty),
+                                      UpdateTrackedState(Map("baz" -> "BAZ")))
     val result = Outcome.asResult("Master", Stream.from(1), allOutcomes).get
     (result.actions must haveSize(4)) and
     (result.actions must containAllOf(Seq(Move(1, -1),
@@ -106,13 +106,13 @@ class OutcomeSpec extends Specification { def is =
   }
 
   def miniBotCompatibility = {
-    val allOutcomes = Set[Outcome](MoveOutcome(DeltaOffset(1, -1)),
-                                   ExplodeOutcome(5),
-                                   SpawnOutcome(DeltaOffset(1, -1), 100, State(Map("foo" -> "FOO"), Map("bar" -> "BAR"))),
-                                   StatusOutcome("status"),
-                                   SayOutcome("say"),
-                                   UpdateRunningState("1", Map("bam" -> "BAM")),
-                                   UpdateTrackedState(Map("baz" -> "BAZ")))
+    val allOutcomes = Vector[Outcome](MoveOutcome(DeltaOffset(1, -1)),
+                                      ExplodeOutcome(5),
+                                      SpawnOutcome(DeltaOffset(1, -1), 100, State(Map("foo" -> "FOO"), Map("bar" -> "BAR"))),
+                                      StatusOutcome("status"),
+                                      SayOutcome("say"),
+                                      UpdateRunningState("1", Map("bam" -> "BAM")),
+                                      UpdateTrackedState(Map("baz" -> "BAZ")))
     val result = Outcome.asResult("1", Stream.from(1), allOutcomes).get
     (result.actions must haveSize(5)) and
     (result.actions must containAllOf(Seq(Move(1, -1),
@@ -125,7 +125,7 @@ class OutcomeSpec extends Specification { def is =
   }
 
   def emptyOutcomes = {
-    Outcome.asResult("1", Stream.from(1), Set.empty) must_== None
+    Outcome.asResult("1", Stream.from(1), Vector.empty) must_== None
   }
 }
 

@@ -24,7 +24,7 @@ class InitialisingResponderSpec extends Specification { def is =
     val responder = InitialisingResponder.respond("Welcome(name=Test,path=src/test/resources,apocalypse=5000,round=1)").asInstanceOf[BotControlResponder]
 
     (responder.lastActions must beEmpty) and
-    (responder.environment.botConfig.strategyGroups must_== Map("movement" -> ("RandomMovementStrategy" :: Nil))) and
+    (responder.environment.botConfig.strategyGroups must_== Vector("movement" -> ("RandomMovementStrategy" :: Nil))) and
     (responder.environment.strategies must haveSize(1)) and
     (responder.environment.strategies.head must haveSize(1)) and
     (responder.environment.trackedState must_== Map.empty[String, Map[String, String]]) and

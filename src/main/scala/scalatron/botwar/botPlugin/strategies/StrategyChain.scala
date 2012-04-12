@@ -8,8 +8,8 @@ trait StrategyChain {
   def forRequest(strategies: List[Strategy#StrategyFunction], request: Request): Option[Strategy#StrategyFunction] =
     strategies find (_.isDefinedAt(request))
 
-  def createStrategyGroups(botConfig: BotConfig): Set[List[Strategy#StrategyFunction]] =
-    (botConfig.strategyGroups map (_._2 map instantiate(botConfig))).toSet
+  def createStrategyGroups(botConfig: BotConfig): IndexedSeq[List[Strategy#StrategyFunction]] =
+    (botConfig.strategyGroups map (_._2 map instantiate(botConfig))).toIndexedSeq
 
   private def instantiate(botConfig: BotConfig)(strategyName: String) = try {
     val className = "scalatron.botwar.botPlugin.strategies."  + strategyName

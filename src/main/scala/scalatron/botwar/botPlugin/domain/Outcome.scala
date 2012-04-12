@@ -54,7 +54,7 @@ case class OutcomeResult(name: String,
 }
 
 object Outcome {
-  def asResult(name: String, sequenceGenerator: Stream[Int], outcomes: Set[Outcome]): Option[OutcomeResult] = {
+  def asResult(name: String, sequenceGenerator: Stream[Int], outcomes: IndexedSeq[Outcome]): Option[OutcomeResult] = {
     def encodeOutcome(result: OutcomeResult, outcome: Outcome) = outcome.encode(result)
     def compatibility(forMaster: Boolean)(outcome: Outcome) =
       if ( forMaster ) outcome.compatibleWithMaster else outcome.compatibleWithMiniBot

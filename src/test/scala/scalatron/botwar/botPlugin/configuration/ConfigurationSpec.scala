@@ -22,9 +22,8 @@ class ConfigurationSpec extends Specification with Configuration { def is =
   def strategyGroups = {
     val botConfig = configure("src/test/resources/configtest", 5000, 1)
 
-    (botConfig.strategyGroups.keys must containAllOf(Seq("movement", "others"))) and
-    (botConfig.strategyGroups.apply("movement") must_== ("RandomMovementStrategy" :: Nil)) and
-    (botConfig.strategyGroups.apply("others") must_== ("NoOpStrategy" :: Nil))
+    botConfig.strategyGroups must_== Vector("others" -> ("NoOpStrategy" :: Nil),
+                                            "movement" -> ("RandomMovementStrategy" :: Nil))
   }
 }
 

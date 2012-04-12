@@ -4,7 +4,7 @@ import scalatron.botwar.botPlugin.configuration.BotConfig
 import scalatron.botwar.botPlugin.strategies.Strategy
 
 case class BotEnvironment(botConfig: BotConfig,
-                          strategies: Set[List[Strategy#StrategyFunction]],
+                          strategies: IndexedSeq[List[Strategy#StrategyFunction]],
                           trackedState: Map[String, Map[String, String]] = Map.empty,
                           sequenceGenerator: Stream[Int] = Stream.from(1)) {
   def updateTrackedState(name: String, entries: Map[String, String]) =

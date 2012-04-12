@@ -1,10 +1,8 @@
 package scalatron.botwar.botPlugin.strategies
 
-import scala.collection.JavaConverters._
 import org.specs2.Specification
-import scalatron.botwar.botPlugin.configuration.BotConfig
-import com.typesafe.config.ConfigFactory
 import scalatron.botwar.botPlugin.domain.Request
+import scalatron.botwar.botPlugin.configuration.{ConfigBuilder, BotConfig}
 
 class StrategyChainSpec extends Specification with StrategyChain { def is =
 
@@ -18,8 +16,7 @@ class StrategyChainSpec extends Specification with StrategyChain { def is =
                                                                      end
 
   def strategyCreation = {
-    val configEntries = Map("bot.strategies" -> Map("test" -> ("TestStrategy1" :: "TestStrategy2" :: Nil).asJava).asJava).asJava
-    val config = ConfigFactory.parseMap(configEntries)
+    val config = ConfigBuilder(Vector("test" -> ("TestStrategy1" :: "TestStrategy2" :: Nil)))
     val strategies = createStrategyGroups(new BotConfig(5000, 1, config))
 
     (strategies must haveSize(1)) and
@@ -27,8 +24,7 @@ class StrategyChainSpec extends Specification with StrategyChain { def is =
   }
 
   def installNoOpStrategy = {
-    val configEntries = Map("bot.strategies" -> Map("test" -> ("FooBar" :: Nil).asJava).asJava).asJava
-    val config = ConfigFactory.parseMap(configEntries)
+    val config = ConfigBuilder(Vector("test" -> ("FooBar" :: Nil)))
     val strategies = createStrategyGroups(new BotConfig(5000, 1, config))
 
     (strategies must haveSize(1)) and
@@ -36,8 +32,7 @@ class StrategyChainSpec extends Specification with StrategyChain { def is =
   }
 
   def findStrategy = {
-    val configEntries = Map("bot.strategies" -> Map("test" -> ("TestStrategy1" :: "TestStrategy2" :: Nil).asJava).asJava).asJava
-    val config = ConfigFactory.parseMap(configEntries)
+    val config = ConfigBuilder(Vector("test" -> ("TestStrategy1" :: "TestStrategy2" :: Nil)))
     val strategies = createStrategyGroups(new BotConfig(5000, 1, config))
     val request = Request("Master", 1, 100, "____M____", None, Map.empty)
 
@@ -45,8 +40,7 @@ class StrategyChainSpec extends Specification with StrategyChain { def is =
   }
 
   def noSuitableStrategy = {
-    val configEntries = Map("bot.strategies" -> Map("test" -> ("TestStrategy1" :: "TestStrategy2" :: Nil).asJava).asJava).asJava
-    val config = ConfigFactory.parseMap(configEntries)
+    val config = ConfigBuilder(Vector("test" -> ("TestStrategy1" :: "TestStrategy2" :: Nil)))
     val strategies = createStrategyGroups(new BotConfig(5000, 1, config))
     val request = Request("1:", 1, 100, "____M____", None, Map.empty)
 
