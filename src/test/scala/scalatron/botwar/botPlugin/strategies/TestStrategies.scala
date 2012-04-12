@@ -2,7 +2,7 @@ package scalatron.botwar.botPlugin.strategies
 
 import scalatron.botwar.botPlugin.configuration.BotConfig
 import scalatron.botwar.botPlugin.protocol._
-import scalatron.botwar.botPlugin.domain.{Context, Request}
+import scalatron.botwar.botPlugin.domain._
 
 class TestStrategy1 extends Strategy {
   def react(config: BotConfig) = {
@@ -13,5 +13,43 @@ class TestStrategy1 extends Strategy {
 class TestStrategy2 extends Strategy {
   def react(config: BotConfig) = {
     case Request(Context("Master", _, _, _, _),_) => null
+  }
+}
+
+class AlwaysMoveStrategy extends Strategy {
+  def react(config: BotConfig) = {
+    case Request(_, _) => Set(MoveOutcome(DeltaOffset(1, -1)))
+  }
+}
+
+class SayHelloStrategy extends Strategy {
+  def react(config: BotConfig) = {
+    case Request(_, _) => Set(SayOutcome("Hello"))
+  }
+}
+
+class ReverseTrackedStateStrategy extends Strategy {
+  def react(config: BotConfig) = {
+    case Request(_, State(_, tracked)) => Set(UpdateTrackedState(tracked map (entry => (entry._1, entry._2.reverse))))
+  }
+}
+
+class SpawnWithNoStateStrategy extends Strategy {
+  def react(config: BotConfig) = {
+    case Request(Context("Master", _, _, _, _), _) => Set(SpawnOutcome(DeltaOffset(1, -1), 200, State(Map.empty, Map.empty)))
+  }
+}
+
+class SpawnWithStateStrategy extends Strategy {
+  def react(config: BotConfig) = {
+    case Request(Context("Master", _, _, _, _), _) =>
+      Set(SpawnOutcome(DeltaOffset(1, -1), 200, State(Map("bar" -> "BAR"), Map("baz" -> "BAZ"))))
+  }
+}
+
+class ReverseRunningStateStrategy extends Strategy {
+  def react(config: BotConfig) = {
+    case Request(Context(name, _, _, _, _), State(running, _)) if ( name != "Master" ) =>
+      Set(UpdateRunningState(name, running map (entry => (entry._1, entry._2.reverse))))
   }
 }

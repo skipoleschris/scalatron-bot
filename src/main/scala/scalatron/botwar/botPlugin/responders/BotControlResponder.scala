@@ -38,7 +38,7 @@ case class BotControlResponder(environment: BotEnvironment,
       }) updateTrackedState (r.name, r.trackedState) replace r.sequenceGenerator
 
       BotControlResponder(nextEnv, r.actions.toIndexedSeq)
-    } getOrElse this
+    } getOrElse this.copy(lastActions = Vector.empty)
   }
 
   case class StrategyOutcome(name: String = "", outcomes: Set[Outcome] = Set()) {

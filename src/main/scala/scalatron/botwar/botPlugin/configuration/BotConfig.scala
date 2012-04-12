@@ -12,6 +12,4 @@ case class BotConfig(apocalypse: Int, round: Int, config: Config) {
 
     (strategies map (entry => (entry.getKey, stringValues(entry)))).toMap
   }
-
-  private def strategyConfigValues = config.getList("bot.strategies").toArray(Array[ConfigValue]())
 }

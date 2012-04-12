@@ -4,37 +4,39 @@ import org.specs2.Specification
 import com.typesafe.config.ConfigFactory
 import scala.collection.JavaConverters._
 import scalatron.botwar.botPlugin.configuration.BotConfig
-import scalatron.botwar.botPlugin.protocol.{Say, Move}
+import scalatron.botwar.botPlugin.protocol._
+import scalatron.botwar.botPlugin.strategies.StrategyChain
 
-class BotControlResponderSpec extends Specification {def is =
+class BotControlResponderSpec extends Specification with StrategyChain {def is =
 
   "Specification for BotControlResponder"                            ^
                                                                      endp^
   "A BotControlResponder should"                                     ^
     "generate a response string when there are no actions"           ! emptyResponse^
     "generate a response string from the contained actions"          ! actionsResponse^
+    "not propagate actions from a previous reaction"                 ! noActionPropagation^
     "not react to a Welcome command"                                 ! welcomeCommand^
     "not react to a Goodbye command"                                 ! goodbyeCommand^
                                                                      endp^
   "Reacting to a React command on Master should return a responder that" ^
-    "contains a simple action"                                       ! pending^
-    "removes tracked state if no update outome"                      ! pending^
-    "updates the tracked state for the master"                       ! pending^
-    "spawns a new mini bot with no state"                            ! pending^
-    "spawns a new mini bot with running state"                       ! pending^
-    "spawns a new mini bot with tracked state"                       ! pending^
+    "contains a simple action"                                       ! masterSimpleAction^
+    "contains simple actions from multiple strategy groups"          ! masterMultipleActions^
+    "removes tracked state if no update outome"                      ! masterRemoveTrackedState^
+    "updates the tracked state for the master"                       ! masterUpdateTrackedState^
+    "spawns a new mini bot with no state"                            ! masterSpawnWithNoState^
+    "spawns a new mini bot with running state"                       ! masterSpawnWithRunningState^
+    "spawns a new mini bot with tracked state"                       ! masterSpawnWithTrackedState^
                                                                      endp^
   "Reacting to a React command on MiniBot should return responder that" ^
-    "contains a simple action"                                       ! pending^
-    "removed tracked stats if no update outcome"                     ! pending^
-    "updates the tracked state for the mini bot"                     ! pending^
-    "updates the name of the mini bot with running state"            ! pending^
+    "contains a simple action"                                       ! miniBotSimpleAction^
+    "contains simple actions from multiple strategy groups"          ! miniBotMultipleActions^
+    "removed tracked stats if no update outcome"                     ! miniBotRemoveTrackedState^
+    "updates the tracked state for the mini bot"                     ! miniBotUpdateTrackedState^
+    "updates the name of the mini bot with running state"            ! miniBotUpdateRunningState^
                                                                      end
 
   def emptyResponse = {
-    val configEntries = Map(("bot.strategies" -> (Nil).asJava)).asJava
-    val config = ConfigFactory.parseMap(configEntries)
-
+    val config = strategies(Map.empty)
     val environment = BotEnvironment(BotConfig(5000, 1, config), Set.empty)
     val responder = BotControlResponder(environment)
 
@@ -42,19 +44,24 @@ class BotControlResponderSpec extends Specification {def is =
   }
 
   def actionsResponse = {
-    val configEntries = Map(("bot.strategies" -> (Nil).asJava)).asJava
-    val config = ConfigFactory.parseMap(configEntries)
-
+    val config = strategies(Map.empty)
     val environment = BotEnvironment(BotConfig(5000, 1, config), Set.empty)
     val responder = BotControlResponder(environment, Vector(Move(1, -1), Say("Test")))
 
     responder.response must_== "Move(dx=1,dy=-1)|Say(text=Test)"
   }
 
-  def welcomeCommand = {
-    val configEntries = Map(("bot.strategies" -> (Nil).asJava)).asJava
-    val config = ConfigFactory.parseMap(configEntries)
+  def noActionPropagation = {
+    val config = strategies(Map.empty)
+    val environment = BotEnvironment(BotConfig(5000, 1, config), Set.empty)
+    val responder = BotControlResponder(environment, Vector(Move(1, -1), Say("Test")))
 
+    val result = responder.respond("React(entity=Master,time=1,view=____M____,energy=1000)").asInstanceOf[BotControlResponder]
+    result.lastActions must beEmpty
+  }
+
+  def welcomeCommand = {
+    val config = strategies(Map.empty)
     val environment = BotEnvironment(BotConfig(5000, 1, config), Set.empty)
     val responder = BotControlResponder(environment, Vector(Move(1, -1), Say("Test")))
 
@@ -62,13 +69,136 @@ class BotControlResponderSpec extends Specification {def is =
   }
 
   def goodbyeCommand = {
-    val configEntries = Map(("bot.strategies" -> (Nil).asJava)).asJava
-    val config = ConfigFactory.parseMap(configEntries)
-
+    val config = strategies(Map.empty)
     val environment = BotEnvironment(BotConfig(5000, 1, config), Set.empty)
     val responder = BotControlResponder(environment, Vector(Move(1, -1), Say("Test")))
 
     responder.respond("Goodbye(energy=1000)") must_== responder
+  }
+
+  def masterSimpleAction = {
+    val config = strategies(Map("movement" -> ("AlwaysMoveStrategy" :: Nil)))
+    val botConfig = BotConfig(5000, 1, config)
+    val environment = BotEnvironment(botConfig, createStrategyGroups(botConfig))
+    val responder = BotControlResponder(environment).respond("React(entity=Master,time=1,view=____M____,energy=1000)")
+
+    responder.asInstanceOf[BotControlResponder].lastActions must_== Seq(Move(1, -1))
+  }
+
+  def masterMultipleActions = {
+    val config = strategies(Map("movement" -> ("AlwaysMoveStrategy" :: Nil), "debug" -> ("SayHelloStrategy" :: Nil)))
+    val botConfig = BotConfig(5000, 1, config)
+    val environment = BotEnvironment(botConfig, createStrategyGroups(botConfig))
+    val responder = BotControlResponder(environment).respond("React(entity=Master,time=1,view=____M____,energy=1000)")
+
+    responder.asInstanceOf[BotControlResponder].lastActions must_== Seq(Move(1, -1), Say("Hello"))
+  }
+
+  def masterRemoveTrackedState = {
+    val config = strategies(Map("movement" -> ("AlwaysMoveStrategy" :: Nil)))
+    val botConfig = BotConfig(5000, 1, config)
+    val trackedState = Map("Master" -> Map("foo" -> "FOO"), "1" -> Map("bar" -> "BAR"))
+    val environment = BotEnvironment(botConfig, createStrategyGroups(botConfig), trackedState)
+    val responder = BotControlResponder(environment).respond("React(entity=Master,time=1,view=____M____,energy=1000)")
+
+    responder.asInstanceOf[BotControlResponder].environment.trackedState must_== Map("1" -> Map("bar" -> "BAR"))
+  }
+
+  def masterUpdateTrackedState = {
+    val config = strategies(Map("state" -> ("ReverseTrackedStateStrategy" :: Nil)))
+    val botConfig = BotConfig(5000, 1, config)
+    val trackedState = Map("Master" -> Map("foo" -> "FOO"))
+    val environment = BotEnvironment(botConfig, createStrategyGroups(botConfig), trackedState)
+    val responder = BotControlResponder(environment).respond("React(entity=Master,time=1,view=____M____,energy=1000)")
+
+    responder.asInstanceOf[BotControlResponder].environment.trackedState must_== Map("Master" -> Map("foo" -> "OOF"))
+  }
+
+  def masterSpawnWithNoState = {
+    val config = strategies(Map("state" -> ("SpawnWithNoStateStrategy" :: Nil)))
+    val botConfig = BotConfig(5000, 1, config)
+    val trackedState = Map("Master" -> Map("foo" -> "FOO"))
+    val environment = BotEnvironment(botConfig, createStrategyGroups(botConfig), trackedState)
+    val responder = BotControlResponder(environment).respond("React(entity=Master,time=1,view=____M____,energy=1000)").asInstanceOf[BotControlResponder]
+
+    (responder.lastActions must_== Seq(Spawn(1, -1, "1:", 200))) and
+    (responder.environment.sequenceGenerator.head must_== 2) and
+    (responder.environment.trackedState.contains("1:") must beFalse)
+  }
+
+  def masterSpawnWithRunningState = {
+    val config = strategies(Map("state" -> ("SpawnWithStateStrategy" :: Nil)))
+    val botConfig = BotConfig(5000, 1, config)
+    val trackedState = Map("Master" -> Map("foo" -> "FOO"))
+    val environment = BotEnvironment(botConfig, createStrategyGroups(botConfig), trackedState)
+    val responder = BotControlResponder(environment).respond("React(entity=Master,time=1,view=____M____,energy=1000)").asInstanceOf[BotControlResponder]
+
+    responder.lastActions must_== Seq(Spawn(1, -1, "1:bar/BAR", 200))
+  }
+
+  def masterSpawnWithTrackedState = {
+    val config = strategies(Map("state" -> ("SpawnWithStateStrategy" :: Nil)))
+    val botConfig = BotConfig(5000, 1, config)
+    val trackedState = Map("Master" -> Map("foo" -> "FOO"))
+    val environment = BotEnvironment(botConfig, createStrategyGroups(botConfig), trackedState)
+    val responder = BotControlResponder(environment).respond("React(entity=Master,time=1,view=____M____,energy=1000)").asInstanceOf[BotControlResponder]
+
+    responder.environment.trackedState("1") must_== Map("baz" ->"BAZ")
+  }
+
+  def miniBotSimpleAction = {
+    val config = strategies(Map("movement" -> ("AlwaysMoveStrategy" :: Nil)))
+    val botConfig = BotConfig(5000, 1, config)
+    val environment = BotEnvironment(botConfig, createStrategyGroups(botConfig))
+    val responder = BotControlResponder(environment).respond("React(entity=1:,time=1,view=____M____,energy=1000,dx=10,dy=-10)")
+
+    responder.asInstanceOf[BotControlResponder].lastActions must_== Seq(Move(1, -1))
+  }
+
+  def miniBotMultipleActions = {
+    val config = strategies(Map("movement" -> ("AlwaysMoveStrategy" :: Nil), "debug" -> ("SayHelloStrategy" :: Nil)))
+    val botConfig = BotConfig(5000, 1, config)
+    val environment = BotEnvironment(botConfig, createStrategyGroups(botConfig))
+    val responder = BotControlResponder(environment).respond("React(entity=1:,time=1,view=____M____,energy=1000,dx=10,dy=-10)")
+
+    responder.asInstanceOf[BotControlResponder].lastActions must_== Seq(Move(1, -1), Say("Hello"))
+  }
+
+  def miniBotRemoveTrackedState = {
+    val config = strategies(Map("movement" -> ("AlwaysMoveStrategy" :: Nil)))
+    val botConfig = BotConfig(5000, 1, config)
+    val trackedState = Map("Master" -> Map("foo" -> "FOO"), "1" -> Map("bar" -> "BAR"))
+    val environment = BotEnvironment(botConfig, createStrategyGroups(botConfig), trackedState)
+    val responder = BotControlResponder(environment).respond("React(entity=1:baz/BAZ,time=1,view=____M____,energy=1000,dx=10,dy=-10)")
+
+    responder.asInstanceOf[BotControlResponder].environment.trackedState must_== Map("Master" -> Map("foo" -> "FOO"))
+  }
+
+  def miniBotUpdateTrackedState = {
+    val config = strategies(Map("state" -> ("ReverseTrackedStateStrategy" :: Nil)))
+    val botConfig = BotConfig(5000, 1, config)
+    val trackedState = Map("Master" -> Map("foo" -> "FOO"), "1" -> Map("bar" -> "BAR"))
+    val environment = BotEnvironment(botConfig, createStrategyGroups(botConfig), trackedState)
+    val responder = BotControlResponder(environment).respond("React(entity=1:baz/BAZ,time=1,view=____M____,energy=1000,dx=10,dy=-10)")
+
+    responder.asInstanceOf[BotControlResponder].environment.trackedState must_== Map("Master" -> Map("foo" -> "FOO"),
+                                                                                     "1" -> Map("bar" -> "RAB"))
+  }
+
+  def miniBotUpdateRunningState = {
+    val config = strategies(Map("state" -> ("ReverseRunningStateStrategy" :: Nil)))
+    val botConfig = BotConfig(5000, 1, config)
+    val trackedState = Map("1" -> Map("bar" -> "BAR"))
+    val environment = BotEnvironment(botConfig, createStrategyGroups(botConfig), trackedState)
+    val responder = BotControlResponder(environment).respond("React(entity=1:baz/BAZ,time=1,view=____M____,energy=1000,dx=10,dy=-10)")
+
+    responder.asInstanceOf[BotControlResponder].lastActions must_== Seq(SetName("1:baz/ZAB"))
+  }
+
+  private def strategies(from: Map[String, List[String]]) = {
+    val javified = from map (entry => (entry._1, entry._2.asJava))
+    val configEntries = Map("bot.strategies" -> javified.asJava).asJava
+    ConfigFactory.parseMap(configEntries)
   }
 }
 

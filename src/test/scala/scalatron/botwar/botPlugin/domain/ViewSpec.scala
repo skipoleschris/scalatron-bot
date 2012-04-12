@@ -10,6 +10,7 @@ class ViewSpec extends Specification { def is =
     "be buildable from an encoded string"                            ! build^
     "know the view dimensions"                                       ! dimensions^
     "know the distance viewable in any direction"                    ! distance^
+    "treat unknown characters as occluded"                           ! unknown^
                                                                      end
 
   def build = {
@@ -28,6 +29,10 @@ class ViewSpec extends Specification { def is =
 
   def distance = {
     View(defaultView).maxRange must_== 2
+  }
+
+  def unknown = {
+    View("zzz") must_== View(Vector(OccludedByWall, OccludedByWall, OccludedByWall))
   }
 
   private def defaultView = """??___
