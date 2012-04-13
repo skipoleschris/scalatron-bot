@@ -1,6 +1,6 @@
 package scalatron.botwar.botPlugin
 
-import responders.{InitialisingResponder, BotResponder}
+import scalatron.botwar.toolkit.responders.{InitialisingResponder, BotResponder}
 
 class ControlFunctionFactory {
   def create: (String => String) = new Bot().respond _

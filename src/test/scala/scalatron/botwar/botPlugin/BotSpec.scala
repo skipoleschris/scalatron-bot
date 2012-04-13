@@ -1,6 +1,5 @@
 package scalatron.botwar.botPlugin
 
-import configuration.BotConfig
 import org.specs2.Specification
 
 class BotSpec extends Specification { def is =
