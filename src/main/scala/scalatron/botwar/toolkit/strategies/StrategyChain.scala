@@ -12,7 +12,7 @@ trait StrategyChain {
     (botConfig.strategyGroups map (_._2 map instantiate(botConfig))).toIndexedSeq
 
   private def instantiate(botConfig: BotConfig)(strategyName: String) = try {
-    val className = "scalatron.botwar.toolkit.strategies."  + strategyName
+    val className = "scalatron.botwar.strategies."  + strategyName
     val clazz = getClass.getClassLoader.loadClass(className)
     val strategy = clazz.newInstance().asInstanceOf[Strategy]
     strategy.react(botConfig)

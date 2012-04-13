@@ -1,18 +1,18 @@
-package scalatron.botwar.toolkit.strategies
+package scalatron.botwar.strategies
 
 import scalatron.botwar.toolkit.configuration.BotConfig
-import scalatron.botwar.toolkit.protocol._
 import scalatron.botwar.toolkit.domain._
+import scalatron.botwar.toolkit.strategies.Strategy
 
 class TestStrategy1 extends Strategy {
   def react(config: BotConfig) = {
-    case Request(Context("Unknown", _, _, _, _),_) => null
+    case Request(Context("Unknown", _, _, _, _), _) => null
   }
 }
 
 class TestStrategy2 extends Strategy {
   def react(config: BotConfig) = {
-    case Request(Context("Master", _, _, _, _),_) => null
+    case Request(Context("Master", _, _, _, _), _) => null
   }
 }
 
@@ -49,14 +49,14 @@ class SpawnWithStateStrategy extends Strategy {
 
 class ReverseRunningStateStrategy extends Strategy {
   def react(config: BotConfig) = {
-    case Request(Context(name, _, _, _, _), State(running, _)) if ( name != "Master" ) =>
+    case Request(Context(name, _, _, _, _), State(running, _)) if (name != "Master") =>
       Set(UpdateRunningState(name, running map (entry => (entry._1, entry._2.reverse))))
   }
 }
 
 class ExplodeStrategy extends Strategy {
   def react(config: BotConfig) = {
-    case Request(Context(name, _, _, _, _), _) if ( name != "Master" ) => Set(ExplodeOutcome(3))
+    case Request(Context(name, _, _, _, _), _) if (name != "Master") => Set(ExplodeOutcome(3))
   }
 }
 

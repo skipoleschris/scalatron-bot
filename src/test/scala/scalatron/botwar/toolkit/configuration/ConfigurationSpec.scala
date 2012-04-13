@@ -23,7 +23,7 @@ class ConfigurationSpec extends Specification with Configuration {
   def strategyGroups = {
     val botConfig = configure("src/test/resources/configtest", 5000, 1)
 
-    botConfig.strategyGroups must_== Vector("others" -> ("NoOpStrategy" :: Nil),
+    botConfig.strategyGroups must_== Vector("others" -> ("TestStrategy1" :: Nil),
       "movement" -> ("RandomMovementStrategy" :: Nil))
   }
 }
