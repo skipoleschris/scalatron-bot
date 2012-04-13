@@ -26,10 +26,12 @@ class BotSpec extends Specification { def is =
   }
 
   def noMatch = {
-//    val bot = new Bot()
-//    bot.installStrategies("TestStrategy1" :: "TestStrategy2" :: "TestStrategy3" :: Nil)
-//    bot.respond("React(entity=Foo,time=1,energy=500,view=____M____,dx=10,dy=0)") must_== ""
-    pending
+    val bot = new Bot()
+    val welcomeResponse = bot.respond("Welcome(name=Test,path=src/test/resources/bottest/nomatch,apocalypse=3,round=1)")
+    val round2Response = bot.respond("React(entity=Master,time=2,view=____M____,energy=1000)")
+
+    (welcomeResponse must_== "") and
+    (round2Response must_== "")
   }
 }
 
