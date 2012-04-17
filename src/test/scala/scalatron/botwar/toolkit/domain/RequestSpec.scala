@@ -12,7 +12,7 @@ class RequestSpec extends Specification { def is =
                                                                      end
 
   def create = {
-    val request = Request("Master", 1, 1000, "____M____", None, Map.empty)
+    val request = Request("Master", 1, 1000, "____M____", None, _ => Map.empty)
 
     (request.context.name must_== "Master") and
     (request.context.time must_== 1) and
@@ -24,7 +24,10 @@ class RequestSpec extends Specification { def is =
   }
 
   def createWithState = {
-    val trackedState = Map("Master" -> Map("foo" -> "FOO"))
+    def trackedState(name: String): Map[String, String] = name match {
+      case "Master" => Map("foo" -> "FOO")
+      case _ => Map.empty
+    }
     val request = Request("Master", 1, 1000, "____M____", None, trackedState)
 
     (request.state.running must beEmpty) and

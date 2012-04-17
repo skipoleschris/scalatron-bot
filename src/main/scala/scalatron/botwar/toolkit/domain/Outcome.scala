@@ -38,7 +38,7 @@ case class UpdateRunningState(name: String, state: Map[String, String]) extends 
   override val compatibleWithMaster = false
 }
 
-case class UpdateTrackedState(state: Map[String, String]) extends Outcome {
+case class MaintainTrackedState(state: Map[String, String]) extends Outcome {
   def encode(result: OutcomeResult) = result withTrackedState state
 }
 

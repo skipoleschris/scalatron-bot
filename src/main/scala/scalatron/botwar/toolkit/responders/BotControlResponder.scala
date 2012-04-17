@@ -5,11 +5,8 @@ import scalatron.botwar.toolkit.strategies.StrategyChain
 import scalatron.botwar.toolkit.domain.{Outcome, Request, DeltaOffset}
 
 
-case class BotControlResponder(environment: BotEnvironment,
-                               lastActions: IndexedSeq[Action] = Vector.empty) extends BotResponder with StrategyChain {
-  def response = (lastActions map (_.toString)) mkString "|"
-
-  protected def forCommand(command: Command): Option[BotResponder] = command match {
+case class BotControlResponder(context: BotContext, sequenceGenerator: Stream[Int]) extends BotResponder with StrategyChain {
+  protected def forCommand(command: Command): Option[Response] = command match {
     case ReactBot(name, time, energy, view) =>
       Some(controlBot(name, time, energy, view))
     case ReactMiniBot(name, time, energy, dx, dy, view) =>
@@ -22,22 +19,22 @@ case class BotControlResponder(environment: BotEnvironment,
                          time: Int,
                          energy: Int,
                          view: String,
-                         offset: Option[DeltaOffset] = None): BotResponder = {
+                         offset: Option[DeltaOffset] = None): Response = {
     def lift[T](f: => T): Option[T] = Some(f)
 
-    val req = Request(name, time, energy, view, offset, environment.trackedState)
+    val req = Request(name, time, energy, view, offset, context.trackedState)
     val allOutcomes = (for (
-      strategyGroup <- environment.strategies;
+      strategyGroup <- context.strategies;
       strategy <- forRequest(strategyGroup, req);
       outcomes <- lift(strategy.apply(req))
     ) yield outcomes).flatten
 
-    Outcome.asResult(req.context.name, environment.sequenceGenerator, allOutcomes) map { r =>
-      val nextEnv = (r.newMiniBots.foldLeft(environment) { (env, bot) =>
-        env.updateTrackedState(bot._1, bot._2)
-      }) updateTrackedState (r.name, r.trackedState) replace r.sequenceGenerator
+    Outcome.asResult(req.context.name, sequenceGenerator, allOutcomes) map { r =>
+      val response = (r.newMiniBots.foldLeft(Response.empty) { (resp, bot) =>
+        resp.updateTrackedState(bot._1, bot._2)
+      }) updateTrackedState (r.name, r.trackedState)
 
-      BotControlResponder(nextEnv, r.actions.toIndexedSeq)
-    } getOrElse this.copy(lastActions = Vector.empty)
+      response.copy(actions = r.actions.toIndexedSeq)
+    } getOrElse Response.empty
   }
 }

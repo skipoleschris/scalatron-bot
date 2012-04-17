@@ -1,24 +1,16 @@
 package scalatron.botwar.botPlugin
 
-import scalatron.botwar.toolkit.responders.{InitialisingResponder, BotResponder}
+import scalatron.botwar.toolkit.responders.BotResponder
 
 class ControlFunctionFactory {
   def create: (String => String) = new Bot().respond _
 }
 
 class Bot {
-  private var responder: BotResponder = InitialisingResponder
-
   def respond(input: String): String = {
-    responder = responder.respond(input)
-    responder.response
+    val ids = MutableThreadSafeBotContext.nextIdBlock
+    val response = BotResponder(MutableThreadSafeBotContext, ids) respond input
+    MutableThreadSafeBotContext.updateFrom(response)
+    response.response
   }
 }
-
-
-
-
-
-
-
-

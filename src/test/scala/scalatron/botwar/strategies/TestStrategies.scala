@@ -30,7 +30,7 @@ class SayHelloStrategy extends Strategy {
 
 class ReverseTrackedStateStrategy extends Strategy {
   def react(config: BotConfig) = {
-    case Request(_, State(_, tracked)) => Set(UpdateTrackedState(tracked map (entry => (entry._1, entry._2.reverse))))
+    case Request(_, State(_, tracked)) => Set(MaintainTrackedState(tracked map (entry => (entry._1, entry._2.reverse))))
   }
 }
 
@@ -60,3 +60,11 @@ class ExplodeStrategy extends Strategy {
   }
 }
 
+class IncrementalStateStrategy extends Strategy {
+  def react(config: BotConfig) = {
+    case Request(_, State(_, tracked)) => {
+      val updated = if ( tracked.isEmpty ) Map("count" -> ".") else tracked map (entry => (entry._1, entry._2 + "."))
+      Set(MaintainTrackedState(updated))
+    }
+  }
+}

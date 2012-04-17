@@ -74,7 +74,7 @@ class OutcomeSpec extends Specification { def is =
   def updateTrackedState = {
     val result = OutcomeResult("Master", Stream.from(1))
     val trackedState = TreeMap("foo" -> "FOO", "bar" -> "BAR")
-    val updated = UpdateTrackedState(trackedState).encode(result)
+    val updated = MaintainTrackedState(trackedState).encode(result)
 
     updated.trackedState must_== trackedState
   }
@@ -94,7 +94,7 @@ class OutcomeSpec extends Specification { def is =
                                       StatusOutcome("status"),
                                       SayOutcome("say"),
                                       UpdateRunningState("1", Map.empty),
-                                      UpdateTrackedState(Map("baz" -> "BAZ")))
+                                      MaintainTrackedState(Map("baz" -> "BAZ")))
     val result = Outcome.asResult("Master", Stream.from(1), allOutcomes).get
     (result.actions must haveSize(4)) and
     (result.actions must containAllOf(Seq(Move(1, -1),
@@ -112,7 +112,7 @@ class OutcomeSpec extends Specification { def is =
                                       StatusOutcome("status"),
                                       SayOutcome("say"),
                                       UpdateRunningState("1", Map("bam" -> "BAM")),
-                                      UpdateTrackedState(Map("baz" -> "BAZ")))
+                                      MaintainTrackedState(Map("baz" -> "BAZ")))
     val result = Outcome.asResult("1", Stream.from(1), allOutcomes).get
     (result.actions must haveSize(5)) and
     (result.actions must containAllOf(Seq(Move(1, -1),
