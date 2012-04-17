@@ -34,7 +34,7 @@ class StrategyChainSpec extends Specification with StrategyChain { def is =
   def findStrategy = {
     val config = ConfigBuilder(Vector("test" -> ("TestStrategy1" :: "TestStrategy2" :: Nil)))
     val strategies = createStrategyGroups(new BotConfig(5000, 1, config))
-    val request = Request("Master", 1, 100, "____M____", None, Map.empty)
+    val request = Request("Master", 1, 100, "____M____", None, _ => Map.empty)
 
     forRequest(strategies.head, request) must beSome[Strategy#StrategyFunction]
   }
@@ -42,7 +42,7 @@ class StrategyChainSpec extends Specification with StrategyChain { def is =
   def noSuitableStrategy = {
     val config = ConfigBuilder(Vector("test" -> ("TestStrategy1" :: "TestStrategy2" :: Nil)))
     val strategies = createStrategyGroups(new BotConfig(5000, 1, config))
-    val request = Request("1:", 1, 100, "____M____", None, Map.empty)
+    val request = Request("1:", 1, 100, "____M____", None, _ => Map.empty)
 
     forRequest(strategies.head, request) must_== None
   }
